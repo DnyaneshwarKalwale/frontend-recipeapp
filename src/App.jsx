@@ -3,6 +3,7 @@ import RecipeGrid from './components/RecipeGrid';
 import RecipeForm from './components/RecipeForm';
 import RecipeDetails from './components/RecipeDetails';
 import Header from './components/Header';
+import CategoryFilter from './components/category';
 
 const API_URL = 'https://recipe-new.onrender.com/api/recipes';
 
@@ -12,11 +13,21 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCuisine, setSelectedCuisine] = useState('All');
+  const [cuisines, setCuisines] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
   const recipesPerPage = 8;
 
   useEffect(() => {
     fetchRecipes();
   }, []);
+
+  useEffect(() => {
+    if (recipes.length > 0) {
+      const uniqueCuisines = [...new Set(recipes.map(recipe => recipe.cuisine))];
+      setCuisines(['All', ...uniqueCuisines]);
+    }
+  }, [recipes]);
 
   const fetchRecipes = async () => {
     try {
@@ -30,11 +41,19 @@ function App() {
     }
   };
 
-  // SurpriseMe
+  // Add the missing function
+  const handleRecipeClick = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
+  const filteredRecipes = selectedCuisine === 'All' 
+    ? recipes 
+    : recipes.filter(recipe => recipe.cuisine === selectedCuisine);
+
   const handleSurpriseMe = () => {
-    if (recipes.length > 0) {
-      const randomIndex = Math.floor(Math.random() * recipes.length);
-      setSelectedRecipe(recipes[randomIndex]);
+    if (filteredRecipes.length > 0) {
+      const randomIndex = Math.floor(Math.random() * filteredRecipes.length);
+      setSelectedRecipe(filteredRecipes[randomIndex]);
     }
   };
 
@@ -53,10 +72,6 @@ function App() {
     } catch (error) {
       console.error('Error adding recipe:', error);
     }
-  };
-
-  const handleRecipeClick = (recipe) => {
-    setSelectedRecipe(recipe);
   };
 
   const handleUpdateRecipe = async (updatedRecipe) => {
@@ -109,15 +124,30 @@ function App() {
   // Pagination calculations
   const indexOfLastRecipe = currentPage * recipesPerPage;
   const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
-  const currentRecipes = recipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
-  const totalPages = Math.ceil(recipes.length / recipesPerPage);
+  const currentRecipes = filteredRecipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
+  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
 
   return (
-    <div>
+    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <Header 
         onAddClick={() => setShowForm(true)}
-        onSurpriseClick={handleSurpriseMe}  
+        onSurpriseClick={handleSurpriseMe}
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
+        darkMode={darkMode}
       />
+
+      {!loading && (
+  
+      <CategoryFilter
+  cuisines={cuisines}
+  selectedCuisine={selectedCuisine}
+  onSelectCuisine={(cuisine) => {
+    setCurrentPage(1);
+    setSelectedCuisine(cuisine);
+  }}
+  darkMode={darkMode}
+/>
+      )}
 
       {loading ? (
         <div className="loading">
@@ -158,4 +188,3 @@ function App() {
 }
 
 export default App;
-

@@ -30,7 +30,7 @@ function App() {
     }
   };
 
-  // Fixed handleSurpriseMe function
+  // SurpriseMe
   const handleSurpriseMe = () => {
     if (recipes.length > 0) {
       const randomIndex = Math.floor(Math.random() * recipes.length);
@@ -57,6 +57,23 @@ function App() {
 
   const handleRecipeClick = (recipe) => {
     setSelectedRecipe(recipe);
+  };
+
+  const handleUpdateRecipe = async (updatedRecipe) => {
+    try {
+      const response = await fetch(`${API_URL}/${updatedRecipe._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedRecipe),
+      });
+      const data = await response.json();
+      setRecipes(recipes.map(recipe => recipe._id === data._id ? data : recipe));
+      setSelectedRecipe(null);
+    } catch (error) {
+      console.error('Error updating recipe:', error);
+    }
   };
 
   const handleReorder = async (activeId, overId) => {
@@ -128,7 +145,11 @@ function App() {
       {selectedRecipe && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <RecipeDetails recipe={selectedRecipe} onClose={closeModal} />
+            <RecipeDetails 
+              recipe={selectedRecipe} 
+              onClose={closeModal}
+              onUpdate={handleUpdateRecipe}
+            />
           </div>
         </div>
       )}

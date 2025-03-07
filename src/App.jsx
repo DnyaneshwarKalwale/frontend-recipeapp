@@ -137,7 +137,7 @@ function App() {
       />
 
       {!loading && (
-  
+  //dark mode
       <CategoryFilter
   cuisines={cuisines}
   selectedCuisine={selectedCuisine}

@@ -12,6 +12,7 @@ function RecipeDetails({ recipe, onClose, onUpdate }) {
     cookTimeMinutes: recipe.cookTimeMinutes,
     servings: recipe.servings
   });
+  //edit
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -149,7 +150,7 @@ function RecipeDetails({ recipe, onClose, onUpdate }) {
             {recipe.ingredients.map((ingredient, index) => (
               <li key={index}>{ingredient}</li>
             ))}
-          </ul>
+          </ul> 
 
           <h3>Instructions</h3>
           <p>{recipe.instructions}</p>
